@@ -1,9 +1,12 @@
-import './App.css'
+import ImageUploader from './components/ImageUploader'
+import './index.css'
 
 function App() {
 
   return (
-    <h1 className="text-3xl font-bold text-blue-500">Iniciando...</h1>
+    <div className='bg-[#1d2733] h-screen flex items-center'>
+      <ImageUploader />
+    </div>
   )
 }
 
