@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from "react";
 
 function formatSpanishCustom(date: Date) {
     const day = date.getDate();
-    const month = date.toLocaleString("es-ES", { month: "long" });
+    const months = [
+        "ene", "feb", "mar", "abr", "may", "jun",
+        "jul", "ago", "sept", "oct", "nov", "dic"
+    ];
+    const month = months[date.getMonth()];
     const year = date.getFullYear();
 
     let hours = date.getHours();
@@ -12,7 +16,7 @@ function formatSpanishCustom(date: Date) {
     const suffix = hours >= 12 ? "p.m." : "a.m.";
     hours = hours % 12 || 12;
 
-    return `${day} de ${month}, ${year} ${String(hours).padStart(2, "0")}:${minutes}:${seconds} ${suffix}`;
+    return `${day} ${month} ${year} ${String(hours).padStart(2, "0")}:${minutes}:${seconds} ${suffix}`;
 }
 
 export default function ImageWithEditableDate() {
@@ -54,7 +58,7 @@ export default function ImageWithEditableDate() {
             canvas.height = img.height;
 
             ctx.drawImage(img, 0, 0);
-            ctx.font = `${Math.floor(img.width * 0.025)}px Arial`;
+            ctx.font = `${Math.floor(img.width * 0.04)}px Arial`;
             ctx.fillStyle = "white";
             ctx.textAlign = "right";
             ctx.shadowColor = "black";
@@ -63,10 +67,24 @@ export default function ImageWithEditableDate() {
             const formatted = formatSpanishCustom(new Date(dateTime));
             ctx.fillText(formatted, img.width - 20, img.height - 20);
 
+            const dateObj = new Date(dateTime);
+            const yyyy = dateObj.getFullYear();
+            const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+            const dd = String(dateObj.getDate()).padStart(2, "0");
+
+            const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+            const seconds = String(dateObj.getSeconds()).padStart(2, "0");
+
+            const hour12 = dateObj.getHours() % 12 || 12;
+            const suffix = dateObj.getHours() >= 12 ? "PM" : "AM";
+
+            const fileName = `WhatsApp Image ${yyyy}-${mm}-${dd} at ${hour12}.${minutes}.${seconds} ${suffix}.jpeg`;
+
             const link = document.createElement("a");
-            link.download = "imagen_con_fecha.png";
-            link.href = canvas.toDataURL("image/png");
+            link.download = fileName;
+            link.href = canvas.toDataURL("image/jpeg");
             link.click();
+
         };
     };
 
@@ -128,7 +146,8 @@ export default function ImageWithEditableDate() {
                                 value={dateTime}
                                 onChange={(e) => setDateTime(e.target.value)}
                                 className="bg-[#1d2733] border-b border-gray-300 text-gray-300 p-2 text-sm w-full
-                [&::-webkit-calendar-picker-indicator]:opacity-0"
+                                [&::-webkit-calendar-picker-indicator]:opacity-0
+                                focus:outline-none focus:border-blue-500"
                                 style={{ paddingRight: '2.5rem' }}
                             />
                             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
