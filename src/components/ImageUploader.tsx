@@ -19,6 +19,7 @@ export default function ImageWithEditableDate() {
   const [preview, setPreview] = useState<string | null>(null);
   const [dateTime, setDateTime] = useState<string>("");
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const now = new Date();
@@ -26,13 +27,15 @@ export default function ImageWithEditableDate() {
     setDateTime(formatted);
   }, []);
 
+  const loadFileToPreview = (file: File) => {
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result as string);
-      reader.readAsDataURL(file);
-    }
+    if (file) loadFileToPreview(file);
   };
 
   const handleRemoveImage = () => setPreview(null);
@@ -68,6 +71,7 @@ export default function ImageWithEditableDate() {
 
   return (
     <div className="flex flex-col items-center gap-4 p-4 border border-gray-400 rounded-xl w-11/12 mx-auto">
+      {/* Subir imagen desde archivos */}
       <input
         type="file"
         accept="image/*"
@@ -78,6 +82,24 @@ export default function ImageWithEditableDate() {
                    file:text-sm
                    file:bg-[#399bf1] file:text-white
                    hover:file:bg-gray-500"
+      />
+
+      {/* Tomar foto con cámara */}
+      <button
+        type="button"
+        onClick={() => cameraInputRef.current?.click()}
+        className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg"
+      >
+        Tomar foto con cámara
+      </button>
+
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleFileChange}
+        className="hidden"
       />
 
       {preview && (
