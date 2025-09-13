@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
 function formatSpanishCustom(date: Date) {
+    // Verificar si la fecha es válida
+    if (isNaN(date.getTime())) {
+        return "Fecha inválida";
+    }
+
     const day = date.getDate();
     const months = [
         "ene", "feb", "mar", "abr", "may", "jun",
@@ -68,24 +73,33 @@ export default function ImageWithEditableDate() {
             ctx.fillText(formatted, img.width - 20, img.height - 20);
 
             const dateObj = new Date(dateTime);
-            const yyyy = dateObj.getFullYear();
-            const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
-            const dd = String(dateObj.getDate()).padStart(2, "0");
+            // Verificar si la fecha es válida antes de usarla
+            if (!isNaN(dateObj.getTime())) {
+                const yyyy = dateObj.getFullYear();
+                const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+                const dd = String(dateObj.getDate()).padStart(2, "0");
 
-            const minutes = String(dateObj.getMinutes()).padStart(2, "0");
-            const seconds = String(dateObj.getSeconds()).padStart(2, "0");
+                const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+                const seconds = String(dateObj.getSeconds()).padStart(2, "0");
 
-            const hour12 = dateObj.getHours() % 12 || 12;
-            const suffix = dateObj.getHours() >= 12 ? "PM" : "AM";
+                const hour12 = dateObj.getHours() % 12 || 12;
+                const suffix = dateObj.getHours() >= 12 ? "PM" : "AM";
 
-            const fileName = `WhatsApp Image ${yyyy}-${mm}-${dd} at ${hour12}.${minutes}.${seconds} ${suffix}.jpeg`;
+                const fileName = `WhatsApp Image ${yyyy}-${mm}-${dd} at ${hour12}.${minutes}.${seconds} ${suffix}.jpeg`;
 
-            const link = document.createElement("a");
-            link.download = fileName;
-            link.href = canvas.toDataURL("image/jpeg");
-            link.click();
-
+                const link = document.createElement("a");
+                link.download = fileName;
+                link.href = canvas.toDataURL("image/jpeg");
+                link.click();
+            } else {
+                console.error("Fecha inválida para el nombre del archivo");
+            }
         };
+    };
+
+    const getFormattedDate = () => {
+        const date = new Date(dateTime);
+        return isNaN(date.getTime()) ? "Selecciona una fecha válida" : formatSpanishCustom(date);
     };
 
     return (
@@ -140,22 +154,47 @@ export default function ImageWithEditableDate() {
                         <label className="text-sm font-medium text-gray-400">
                             Fecha y hora
                         </label>
-                        <div className="relative w-full">
-                            <input
-                                type="datetime-local"
-                                value={dateTime}
-                                step="1"
-                                onChange={(e) => setDateTime(e.target.value)}
-                                className="bg-[#1d2733] border-b border-gray-300 text-gray-300 p-2 text-sm w-full [&::-webkit-calendar-picker-indicator]:opacity-0 focus:outline-none focus:border-blue-500"
-                                style={{ paddingRight: '2.5rem' }}
-                            />
-                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
+                        <div className="flex gap-2 w-full">
+                            <div className="relative w-1/2">
+                                <input
+                                    type="date"
+                                    value={dateTime.split('T')[0]}
+                                    onChange={(e) => {
+                                        const timePart = dateTime.split('T')[1] || '00:00';
+                                        setDateTime(`${e.target.value}T${timePart}`);
+                                    }}
+                                    className="bg-[#1d2733] border-b border-gray-300 text-gray-300 p-2 text-xs w-full
+                                        [&::-webkit-calendar-picker-indicator]:opacity-0
+                                        focus:outline-none focus:border-blue-500 pr-10"
+                                />
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div className="relative w-1/2">
+                                <input
+                                    type="time"
+                                    value={dateTime.split('T')[1]?.substring(0, 5) || '00:00'}
+                                    step="1"
+                                    onChange={(e) => {
+                                        const datePart = dateTime.split('T')[0];
+                                        setDateTime(`${datePart}T${e.target.value}`);
+                                    }}
+                                    className="bg-[#1d2733] border-b border-gray-300 text-gray-300 p-2 text-xs w-full
+                                        [&::-webkit-calendar-picker-indicator]:opacity-0
+                                        focus:outline-none focus:border-blue-500 pr-10"
+                                />
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
                             </div>
                         </div>
                     </div>
+
 
                     <div className="relative w-full">
 
@@ -181,7 +220,7 @@ export default function ImageWithEditableDate() {
 
                         <img src={preview} alt="Vista previa" className="w-full rounded-lg shadow-md" />
                         <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-                            {formatSpanishCustom(new Date(dateTime))}
+                            {getFormattedDate()}
                         </div>
                     </div>
                 </>
