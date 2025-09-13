@@ -144,10 +144,9 @@ export default function ImageWithEditableDate() {
                             <input
                                 type="datetime-local"
                                 value={dateTime}
+                                step="1"
                                 onChange={(e) => setDateTime(e.target.value)}
-                                className="bg-[#1d2733] border-b border-gray-300 text-gray-300 p-2 text-sm w-full
-                                [&::-webkit-calendar-picker-indicator]:opacity-0
-                                focus:outline-none focus:border-blue-500"
+                                className="bg-[#1d2733] border-b border-gray-300 text-gray-300 p-2 text-sm w-full [&::-webkit-calendar-picker-indicator]:opacity-0 focus:outline-none focus:border-blue-500"
                                 style={{ paddingRight: '2.5rem' }}
                             />
                             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
