@@ -195,7 +195,6 @@ export default function ImageWithEditableDate() {
                         </div>
                     </div>
 
-
                     <div className="relative w-full">
 
                         <button
